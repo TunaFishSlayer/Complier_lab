@@ -1,0 +1,12 @@
+program tongHaiSo;
+var
+  a: integer;
+  b: integer;
+  sum: integer;
+begin
+  a := ReadI;
+  b := ReadI;
+  sum := a + b;
+  call WriteI(sum);
+  call WriteLn;
+end.
