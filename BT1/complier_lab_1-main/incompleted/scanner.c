@@ -60,13 +60,11 @@ Token* readIdentKeyword(void) {
   int index = 0;
   Token* token = makeToken(TK_IDENT, lineNo, colNo);
 
-  // read letters and digits into token->string
   while (charCodes[currentChar] == CHAR_LETTER || charCodes[currentChar] == CHAR_DIGIT) {
     token->string[index] = currentChar;
     index++;
     readChar();
   }
-  // add null character at the end of the string
   token->string[index] = '\0';
 
   // check if the identifier is too long
@@ -86,15 +84,13 @@ Token* readNumber(void) {
   int index = 0;
   Token* token = makeToken(TK_NUMBER, lineNo, colNo);
 
-  // read digits into token->string
   while (charCodes[currentChar] == CHAR_DIGIT) {
     token->string[index] = currentChar;
     index++;
     readChar();
   }
-  // add null character at the end of the string
   token->string[index] = '\0';
-  token->value = atoi(token->string);// convert string to integer value
+  token->value = atoi(token->string);
 
   return token;
 }
@@ -102,17 +98,14 @@ Token* readNumber(void) {
 Token* readConstChar(void) {
   int index = 0;
   Token* token = makeToken(TK_CHAR, lineNo, colNo);
-  readChar(); // consume opening single quote
-  // read first character into token->string
+  readChar(); 
   if (currentChar != '\'' && currentChar != EOF) {
     token->string[index] = currentChar;
     index++;
     readChar();
   }
-  // add null character at the end of the string
   token->string[index] = '\0';
   
-  // consume closing single quote
   if (currentChar == '\'') {
     readChar();
   } else {
