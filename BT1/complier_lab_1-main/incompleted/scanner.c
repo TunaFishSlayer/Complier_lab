@@ -67,11 +67,9 @@ Token* readIdentKeyword(void) {
   }
   token->string[index] = '\0';
 
-  // check if the identifier is too long
   if (index > MAX_IDENT_LEN) {
-    error(ERR_IDENTTOOLONG, lineNo, colNo - index);// "- index" to get the starting position of the identifier
+    error(ERR_IDENTTOOLONG, lineNo, colNo - index);
   } else {
-    // check if the identifier is a keyword
     TokenType type = checkKeyword(token->string);
     if (type != TK_NONE) {
       token->tokenType = type;
@@ -91,7 +89,7 @@ Token* readNumber(void) {
   }
   token->string[index] = '\0';
   token->value = atoi(token->string);
-
+  
   return token;
 }
 
