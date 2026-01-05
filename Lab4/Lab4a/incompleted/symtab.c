@@ -1,4 +1,4 @@
-/* 
+/*
  * @copyright (c) 2008, Hedspi, Hanoi University of Technology
  * @author Huu-Duc Nguyen
  * @version 1.0
@@ -109,7 +109,7 @@ ConstantValue* makeCharConstant(char ch) {
 ConstantValue* duplicateConstantValue(ConstantValue* v) {
   ConstantValue* value = (ConstantValue*) malloc(sizeof(ConstantValue));
   value->type = v->type;
-  if (v->type == TP_INT) 
+  if (v->type == TP_INT)
     value->intValue = v->intValue;
   else
     value->charValue = v->charValue;
@@ -269,11 +269,11 @@ void addObject(ObjectNode **objList, Object* obj) {
   ObjectNode* node = (ObjectNode*) malloc(sizeof(ObjectNode));
   node->object = obj;
   node->next = NULL;
-  if ((*objList) == NULL) 
+  if ((*objList) == NULL)
     *objList = node;
   else {
     ObjectNode *n = *objList;
-    while (n->next != NULL) 
+    while (n->next != NULL)
       n = n->next;
     n->next = node;
   }
@@ -281,7 +281,7 @@ void addObject(ObjectNode **objList, Object* obj) {
 
 Object* findObject(ObjectNode *objList, char *name) {
   while (objList != NULL) {
-    if (strcmp(objList->object->name, name) == 0) 
+    if (strcmp(objList->object->name, name) == 0)
       return objList->object;
     else objList = objList->next;
   }
@@ -297,7 +297,7 @@ void initSymTab(void) {
   symtab->globalObjectList = NULL;
   symtab->program = NULL;
   symtab->currentScope = NULL;
-  
+
   readcFunction = createFunctionObject("READC");
   declareObject(readcFunction);
   readcFunction->funcAttrs->returnType = makeCharType();
@@ -348,45 +348,62 @@ void exitBlock(void) {
 }
 
 void declareObject(Object* obj) {
-    // Handle built-in functions/procedures during initialization (when currentScope is NULL)
+  if (obj == NULL) return;
+
   if (symtab->currentScope == NULL) {
     addObject(&(symtab->globalObjectList), obj);
     return;
   }
-  
-  // Add object to current scope's object list
+
   addObject(&(symtab->currentScope->objList), obj);
-  
-  // Set scope for variables and parameters
-  if (obj->kind == OBJ_VARIABLE) {
-    obj->varAttrs->scope = symtab->currentScope;
-    // Local offset starts after reserved words and parameters
-    obj->varAttrs->localOffset = symtab->currentScope->frameSize;
-    // Increase frame size by the size of the variable
-    symtab->currentScope->frameSize += sizeOfType(obj->varAttrs->type);
-  } else if (obj->kind == OBJ_PARAMETER) {
-    obj->paramAttrs->scope = symtab->currentScope;
-    // Parameter offset starts at RESERVED_WORDS (4)
-    obj->paramAttrs->localOffset = symtab->currentScope->frameSize;
-    // Increase frame size by the size of the parameter
-    symtab->currentScope->frameSize += sizeOfType(obj->paramAttrs->type);
-    
-    // Add parameter to the owner's parameter list
-    if (symtab->currentScope->owner != NULL) {
-      if (symtab->currentScope->owner->kind == OBJ_FUNCTION) {
-        addObject(&(symtab->currentScope->owner->funcAttrs->paramList), obj);
-        symtab->currentScope->owner->funcAttrs->paramCount++;
-      } else if (symtab->currentScope->owner->kind == OBJ_PROCEDURE) {
-        addObject(&(symtab->currentScope->owner->procAttrs->paramList), obj);
-        symtab->currentScope->owner->procAttrs->paramCount++;
+
+  switch (obj->kind) {
+    case OBJ_VARIABLE:
+      if (obj->varAttrs != NULL) {
+        obj->varAttrs->scope = symtab->currentScope;
+        obj->varAttrs->localOffset = symtab->currentScope->frameSize;
+        symtab->currentScope->frameSize += sizeOfType(obj->varAttrs->type);
       }
-    }
-  }
-  
-  // For global scope objects (constants, types, functions, procedures)
-  if (symtab->program != NULL && symtab->currentScope == symtab->program->progAttrs->scope) {
-    addObject(&(symtab->globalObjectList), obj);
+      break;
+
+    case OBJ_PARAMETER:
+      if (obj->paramAttrs != NULL) {
+        obj->paramAttrs->scope = symtab->currentScope;
+        obj->paramAttrs->localOffset = symtab->currentScope->frameSize;
+        symtab->currentScope->frameSize += sizeOfType(obj->paramAttrs->type);
+
+        Object* owner = symtab->currentScope->owner;
+        if (owner != NULL) {
+          if (owner->kind == OBJ_FUNCTION) {
+            addObject(&(owner->funcAttrs->paramList), obj);
+            owner->funcAttrs->paramCount++;
+          } else if (owner->kind == OBJ_PROCEDURE) {
+            addObject(&(owner->procAttrs->paramList), obj);
+            owner->procAttrs->paramCount++;
+          }
+        }
+      }
+      break;
+
+    case OBJ_FUNCTION:
+      if (obj->funcAttrs != NULL && obj->funcAttrs->scope != NULL) {
+        obj->funcAttrs->scope->outer = symtab->currentScope;
+      }
+      break;
+
+    case OBJ_PROCEDURE:
+      if (obj->procAttrs != NULL && obj->procAttrs->scope != NULL) {
+        obj->procAttrs->scope->outer = symtab->currentScope;
+      }
+      break;
+
+    case OBJ_PROGRAM:
+      if (obj->progAttrs != NULL && obj->progAttrs->scope != NULL) {
+        obj->progAttrs->scope->outer = symtab->currentScope;
+      }
+      break;
+
+    default:
+      break;
   }
 }
-
-

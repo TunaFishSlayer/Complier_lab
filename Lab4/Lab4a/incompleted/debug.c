@@ -42,9 +42,6 @@ void printConstantValue(ConstantValue* value) {
 }
 
 void printObject(Object* obj, int indent) {
-  if (obj == NULL) {
-    return;
-  }
   switch (obj->kind) {
   case OBJ_CONSTANT:
     pad(indent);
@@ -101,9 +98,6 @@ void printObjectList(ObjectNode* objList, int indent) {
 }
 
 void printScope(Scope* scope, int indent) {
-  if (scope == NULL || scope->objList == NULL) {
-    return;
-  }
   printObjectList(scope->objList, indent);
 }
 
