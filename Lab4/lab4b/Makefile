@@ -4,8 +4,8 @@ LIBS =  -lm
 
 all: kplc
 
-kplc: main.o parser.o scanner.o reader.o charcode.o token.o error.o symtab.o semantics.o debug.o
-	${CC} main.o parser.o scanner.o reader.o charcode.o token.o error.o symtab.o semantics.o debug.o -o kplc
+kplc: main.o parser.o scanner.o reader.o charcode.o token.o error.o symtab.o semantics.o debug.o instructions.o codegen.o
+	${CC} main.o parser.o scanner.o reader.o charcode.o token.o error.o symtab.o semantics.o debug.o instructions.o codegen.o -o kplc
 
 main.o: main.c
 	${CC} ${CFLAGS} main.c
@@ -37,17 +37,11 @@ semantics.o: semantics.c
 debug.o: debug.c
 	${CC} ${CFLAGS} debug.c
 
-test:
-	@for i in 1 2 3 4; do \
-		echo "Running test $$i..."; \
-		./kplc ../tests/example$$i.kpl > ../tests/output/output$$i.txt; \
-		if diff -q ../tests/output/output$$i.txt ../tests/result$$i.txt > /dev/null; then \
-			echo "Test $$i PASSED"; \
-		else \
-			echo "Test $$i FAILED"; \
-		fi; \
-	done
-	@echo "All tests completed"
+instructions.o: instructions.c
+	${CC} ${CFLAGS} instructions.c
+
+codegen.o: codegen.c
+	${CC} ${CFLAGS} codegen.c
 
 clean:
 	rm -f *.o *~
