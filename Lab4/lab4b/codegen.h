@@ -33,7 +33,7 @@
 #define DYNAMIC_LINK_OFFSET 1
 #define RETURN_ADDRESS_OFFSET 2
 #define STATIC_LINK_OFFSET 3
-
+int calculateNestedLevel(Scope* VarScope);
 void genVariableAddress(Object* var);
 void genVariableValue(Object* var);
 

@@ -19,12 +19,26 @@ extern Object* writelnProcedure;
 
 CodeBlock* codeBlock;
 
+int calculateNestedLevel(Scope* VarScope) {
+  int level = 0;
+  Scope* scope = symtab->currentScope;
+  while (scope != VarScope && scope != NULL) {
+    scope = scope->outer;
+    level ++;
+  }
+  return level;
+}
+
 void genVariableAddress(Object* var) {
-  
+  int level = calculateNestedLevel(VARIABLE_SCOPE(var));
+  int offset = VARIABLE_OFFSET(var);
+  genLA(level, offset);
 }
 
 void genVariableValue(Object* var) {
-  
+  int level = calculateNestedLevel(VARIABLE_SCOPE(var));
+  int offset = VARIABLE_OFFSET(var);
+  genLV(level, offset);
 }
 
 int isPredefinedFunction(Object* func) {
