@@ -49,9 +49,9 @@ clean:
 test:
 	@for i in 1 2 3 4; do \
 		echo "Compiling example$$i..."; \
-		./kplc tests/example$$i.kpl tests/output/example$$i.out -dump \
-			> tests/output/output$$i.txt; \
-		if diff -q tests/example$$i tests/output/example$$i.out > /dev/null; then \
+		./kplc ../tests/example$$i.kpl ../tests/output/example$$i.out -dump \
+			> ../tests/output/output$$i.txt; \
+		if diff -q ../tests/example$$i ../tests/output/example$$i.out > /dev/null; then \
 			echo "Example $$i PASSED"; \
 		else \
 			echo "Example $$i FAILED"; \
